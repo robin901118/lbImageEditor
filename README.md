@@ -2,8 +2,9 @@
 
 [![Npm lb-image-editor](https://img.shields.io/badge/Npm-0.2.0-red.svg)](https://www.npmjs.com/package/lb-image-editor)
 
+[![Github lb-image-editor](https://img.shields.io/badge/Github-0.2.0-green.svg)](https://www.npmjs.com/package/lb-image-editor)
+
 > 基于Vue2.x的头像编辑插件
-> 源码：https://github.com/robin901118/lbImageEditor
 
 ## 安装
 因为此插件需要EXIF模块，所以需要先安装EXIF-JS
