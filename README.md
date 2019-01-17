@@ -1,5 +1,5 @@
 # lb-image-editor
-[![Npm lb-image-editor](https://img.shields.io/badge/Npm-0.2.0-red.svg)](https://www.npmjs.com/package/lb-image-editor) [![Github lb-image-editor](https://img.shields.io/badge/Github-0.2.0-green.svg)](https://www.npmjs.com/package/lb-image-editor)
+[![Npm lb-image-editor](https://img.shields.io/badge/Npm-0.2.1-red.svg)](https://www.npmjs.com/package/lb-image-editor) [![Github lb-image-editor](https://img.shields.io/badge/Github-0.2.1-green.svg)](https://www.npmjs.com/package/lb-image-editor)
 
 > 基于Vue2.x的头像编辑插件
 
@@ -10,7 +10,7 @@ $ npm install exif-js -S
 ```
 再安装此插件
 ``` bash
-$ npm install lb-image-editor-S
+$ npm install lb-image-editor -S
 ```
 ## 使用
 在 `main.js` 文件中引入插件并注册
