@@ -87,7 +87,7 @@ Vue.use(imageEditor);
 | ------ | ------ | ------ | ------ |
 | imageFile | 图片文件（不可传入空文件，需要事先判断一下，不可传入太大文件，防止页面卡顿） | Object | null |
 | cropWidth | 裁切图片宽度（不可大于屏幕宽度） | Number | 260 |
-| cropWidth | 裁切图片宽度（不可大于屏幕宽度） | Number | 260 |
+| cropHeight | 裁切图片高度（不可大于屏幕高度） | Number | 260 |
 
 ## 事件
 | 事件名称 | 描述 |
