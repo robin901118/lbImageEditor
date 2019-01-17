@@ -5,13 +5,13 @@
             <canvas id="LBIMGEDITOR_canvas" :width="windowWidth" :height="windowHeight"></canvas>
             <!--蒙层canvas-->
             <canvas id="LBIMGEDITOR_canvasMask" :width="windowWidth" :height="windowHeight"></canvas>
-            <!--用于导出图片的canvas-->
-            <canvas id="LBIMGEDITOR_resultImg" width="260" height="260" style="display: none"></canvas>
         </div>
+        <!--底部按钮-->
         <div class="LBIMGEDITOR-bottomBar">
             <button type="button" @click="cancelEditor">取消</button>
             <button type="button" @click="confirmImage">完成</button>
         </div>
+        <!--loading-->
         <div class="LBIMGEDITOR-myMask" v-if="editorLoadingShow">
             <div class="spring-spinner">
                 <div class="spring-spinner-part top">
@@ -31,11 +31,27 @@
 
   export default {
     name: "imageEditor",
-    props: ['imageFile'],
+    props: {
+      /*传入的图片fail*/
+      imageFile: {
+        type:null,
+        default: null
+      },
+      /*传入的裁切宽度*/
+      cropWidth: {
+        type: Number,
+        default: 260
+      },
+      /*传入的裁切高度*/
+      cropHeight: {
+        type: Number,
+        default: 260
+      }
+    },
     data() {
       return {
-        editorLoadingShow:true,//显示loading
-        imageBase64:'',//图片的base64值
+        editorLoadingShow: true,//显示loading
+        imageBase64: '',//图片的base64值
         degree: 0,//原图片旋转角度
         windowWidth: 0,//屏幕的宽度
         windowHeight: 0,//屏幕的高度
@@ -51,16 +67,14 @@
         translateX: 0,//平移X轴
         translateY: 0,//平移Y轴
         canvas: null,//canvas
-        canvasMask: null,//canvas-mask
-        canvasResult: null//裁切图片canvas
+        canvasMask: null//canvas-mask
       }
     },
-
     methods: {
       /**
        * 编辑之前做一些操作
        * */
-      beforeEditor(){
+      beforeEditor() {
         let files = this.imageFile,
           self = this;
 
@@ -94,11 +108,9 @@
        * */
       createCanvas() {
         let canvas = document.querySelector('#LBIMGEDITOR_canvas'),
-          canvasMask = document.querySelector('#LBIMGEDITOR_canvasMask'),
-          canvasRsut = document.querySelector('#LBIMGEDITOR_resultImg');
+          canvasMask = document.querySelector('#LBIMGEDITOR_canvasMask');
         this.canvas = canvas.getContext('2d');
         this.canvasMask = canvasMask.getContext('2d');
-        this.canvasResult = canvasRsut.getContext('2d');
         this.windowWidth = window.innerWidth;
         this.windowHeight = window.innerHeight - 50;//减去底部的50菜单栏高度
 
@@ -116,10 +128,10 @@
           this.canvasMask.globalCompositeOperation = 'source-out';
           this.canvasMask.fillStyle = 'rgb(255,255,255)';
           this.canvasMask.fillRect(
-            this.windowWidth / 2 - 130,
-            this.windowHeight / 2 - 130,
-            260,
-            260);
+            this.windowWidth / 2 - this.cropWidth / 2,
+            this.windowHeight / 2 - this.cropHeight / 2,
+            this.cropWidth,
+            this.cropHeight);
           this.canvasMask.fill();
           this.canvasMask.fillStyle = 'rgba(0,0,0,0.7)';
           this.canvasMask.fillRect(0, 0, this.windowWidth, this.windowHeight);
@@ -141,7 +153,12 @@
           }
 
           this.canvas.translate(this.windowWidth / 2, this.windowHeight / 2);//把canvas原点移动到中心位置
-          this.canvas.drawImage(this.imgEl, 0 - this.imgWidth / 2, 0 - this.imgHeight / 2, this.imgWidth, this.imgHeight);
+          this.canvas.drawImage(
+            this.imgEl,
+            0 - this.imgWidth / 2,
+            0 - this.imgHeight / 2,
+            this.imgWidth,
+            this.imgHeight);
 
           /*初始化hammer*/
           this.initHammer();
@@ -262,7 +279,7 @@
        * +++++++++++++++++++++++++++++++++++++
        * */
       cancelEditor() {
-        this.$emit('editorResult','');
+        this.$emit('editorResult', '');
       },
 
       /**
@@ -270,143 +287,41 @@
        * 编辑完成
        * +++++++++++++++++++++++++++++++++++++
        * */
-      confirmImage(){
+      confirmImage() {
         let base64 = document.querySelector('#LBIMGEDITOR_canvas').toDataURL("image/png");
         let nImg = new Image();
         nImg.src = base64;
         nImg.onload = () => {
-          this.canvasResult.fillStyle = 'white';
-          this.canvasResult.fillRect(0, 0, 260, 260);
-          this.canvasResult.drawImage(nImg, -(this.windowWidth / 2 - 130), -(this.windowHeight / 2 - 130));
+          /*创建一个reasultCanvas*/
+          let canvas = document.createElement('canvas');
+          canvas.width = this.cropWidth;
+          canvas.height = this.cropHeight;
+          let context = canvas.getContext('2d');
+          /*对resultCanva做背景填充并放入图片*/
+          context.fillStyle = 'white';
+          context.fillRect(0, 0, this.cropWidth, this.cropHeight);
+          context.drawImage(
+            nImg,
+            -(this.windowWidth / 2 - this.cropWidth / 2),
+            -(this.windowHeight / 2 - this.cropHeight / 2));
           /*最后导出裁切好的图片base64码*/
-          this.$emit('editorResult',document.querySelector('#LBIMGEDITOR_resultImg').toDataURL("image/jpeg"));
+          this.$emit('editorResult', canvas.toDataURL("image/jpeg"));
         }
       }
     },
-
     mounted() {
       //因为安卓手机调用摄像头拍照会有一个旋转屏幕的效果，
       //为了保证编辑界面不出现bug，建议加个loading延迟一下
-      setTimeout(()=>{
+      setTimeout(() => {
         this.beforeEditor();
         this.editorLoadingShow = false;
-      },2000);
+      }, 2000);
 
     }
   }
 </script>
 
 <style scoped>
-    .LBIMGEDITOR-screenBox {
-        background: #383434;
-        position: fixed;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom:0;
-        z-index: 2;
-        color: white;
-    }
-
-    #LBIMGEDITOR_canvasMask {
-        position: absolute;
-        left: 0;
-        top: 0;
-        z-index: 5;
-    }
-
-    .LBIMGEDITOR-editorBox {
-        height: 100%;
-        position: relative;
-    }
-
-    .LBIMGEDITOR-bottomBar {
-        height: 50px;
-        padding: 0 20px;
-        border-top: 1px solid gray;
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 10;
-        display: flex;
-        display: -webkit-box;
-        display: -webkit-flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .LBIMGEDITOR-bottomBar > button {
-        background: transparent;
-        color: white;
-        font-size: 20px;
-        border: none;
-        outline: none;
-    }
-
-    .LBIMGEDITOR-myMask{
-        position: fixed;
-        left: 0;
-        top:0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,.5);
-        z-index: 9999;
-        display: flex;
-        display: -webkit-box;
-        display: -webkit-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .spring-spinner, .spring-spinner * {
-        box-sizing: border-box;
-    }
-
-    .spring-spinner {
-        height: 60px;
-        width: 60px;
-    }
-
-    .spring-spinner .spring-spinner-part {
-        overflow: hidden;
-        height: calc(60px / 2);
-        width: 60px;
-    }
-
-    .spring-spinner  .spring-spinner-part.bottom {
-        transform: rotate(180deg) scale(-1, 1);
-    }
-
-    .spring-spinner .spring-spinner-rotator {
-        width: 60px;
-        height: 60px;
-        border: calc(60px / 7) solid transparent;
-        border-right-color: white;
-        border-top-color: white;
-        border-radius: 50%;
-        box-sizing: border-box;
-        animation: spring-spinner-animation 3s ease-in-out infinite;
-        transform: rotate(-200deg);
-    }
-
-    @keyframes spring-spinner-animation {
-        0% {
-            border-width: calc(60px / 7);
-        }
-        25% {
-            border-width: calc(60px / 23.33);
-        }
-        50% {
-            transform: rotate(115deg);
-            border-width: calc(60px / 7);
-        }
-        75% {
-            border-width: calc(60px / 23.33);
-        }
-        100% {
-            border-width: calc(60px / 7);
-        }
-    }
+    @import "./imageEditor.css";
 </style>
   

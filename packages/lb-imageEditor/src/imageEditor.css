@@ -1,0 +1,111 @@
+.LBIMGEDITOR-screenBox {
+  background: #383434;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  color: white;
+}
+
+#LBIMGEDITOR_canvasMask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 5;
+}
+
+.LBIMGEDITOR-editorBox {
+  height: 100%;
+  position: relative;
+}
+
+.LBIMGEDITOR-bottomBar {
+  height: 50px;
+  padding: 0 20px;
+  border-top: 1px solid gray;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  display: -webkit-box;
+  display: -webkit-flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.LBIMGEDITOR-bottomBar > button {
+  background: transparent;
+  color: white;
+  font-size: 20px;
+  border: none;
+  outline: none;
+}
+
+.LBIMGEDITOR-myMask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, .5);
+  z-index: 9999;
+  display: flex;
+  display: -webkit-box;
+  display: -webkit-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spring-spinner, .spring-spinner * {
+  box-sizing: border-box;
+}
+
+.spring-spinner {
+  height: 60px;
+  width: 60px;
+}
+
+.spring-spinner .spring-spinner-part {
+  overflow: hidden;
+  height: calc(60px / 2);
+  width: 60px;
+}
+
+.spring-spinner .spring-spinner-part.bottom {
+  transform: rotate(180deg) scale(-1, 1);
+}
+
+.spring-spinner .spring-spinner-rotator {
+  width: 60px;
+  height: 60px;
+  border: calc(60px / 7) solid transparent;
+  border-right-color: white;
+  border-top-color: white;
+  border-radius: 50%;
+  box-sizing: border-box;
+  animation: spring-spinner-animation 3s ease-in-out infinite;
+  transform: rotate(-200deg);
+}
+
+@keyframes spring-spinner-animation {
+  0% {
+    border-width: calc(60px / 7);
+  }
+  25% {
+    border-width: calc(60px / 23.33);
+  }
+  50% {
+    transform: rotate(115deg);
+    border-width: calc(60px / 7);
+  }
+  75% {
+    border-width: calc(60px / 23.33);
+  }
+  100% {
+    border-width: calc(60px / 7);
+  }
+}

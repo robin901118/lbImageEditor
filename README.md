@@ -1,20 +1,26 @@
 # lb-image-editor
 
+[![Npm lb-image-editor](https://img.shields.io/badge/Npm-0.2.0-red.svg)](https://www.npmjs.com/package/lb-image-editor)
+
 > 基于Vue2.x的头像编辑插件
+> 源码：https://github.com/robin901118/lbImageEditor
 
 ## 安装
-
+因为此插件需要EXIF模块，所以需要先安装EXIF-JS
 ``` bash
-$ npm install lb-image-editor exif-js -S
+$ npm install exif-js -S
+```
+再安装此插件
+``` bash
+$ npm install lb-image-editor-S
 ```
 ## 使用
-因为插件基于exif-js需要先引入此插件
 在 `main.js` 文件中引入插件并注册
 
 ``` bash
 # main.js
-import lbImageEditor from 'lb-image-editor'
-Vue.use(lbImageEditor);
+import imageEditor from 'lb-image-editor'
+Vue.use(imageEditor);
 ```
 
 在项目中使用 lbImageEditor
@@ -79,12 +85,25 @@ Vue.use(lbImageEditor);
 3. 可以触摸放大，缩小，移动等编辑形式，暂时无法实现旋转，后续版本会考虑添加旋转功能
 
 ## 选项
-传入图片文件：imageFile（不可传入空文件，需要事先判断一下，不可传入太大文件，防止页面卡顿）
-
+| 选项名称 | 描述 | 数据类型 | 默认值 |
+| ------ | ------ | ------ | ------ |
+| imageFile | 图片文件（不可传入空文件，需要事先判断一下，不可传入太大文件，防止页面卡顿） | Object | null |
+| cropWidth | 裁切图片宽度（不可大于屏幕宽度） | Number | 260 |
+| cropWidth | 裁切图片宽度（不可大于屏幕宽度） | Number | 260 |
 
 ## 事件
 editorResult：返回裁切好的图片base64
+| 事件名称 | 描述 |
+| ------ | ------ |
+| editorResult | 返回裁切好的图片base64（需要对返回数据做判断，为空则是点击了取消） |
 
 ``` js
-<imageEditor v-if="headImage" :imageFile="headImage" v-on:editorResult="editorResult($event)" />
+editorResult(data){
+        this.headImage = '';
+        this.$refs.file.value = '';
+        if(!data) return;//点击了取消
+
+        //执行上传.....
+        this.cropImgSrc = data;
+      }
 ```
