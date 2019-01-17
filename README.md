@@ -92,10 +92,10 @@ Vue.use(imageEditor);
 | cropWidth | 裁切图片宽度（不可大于屏幕宽度） | Number | 260 |
 
 ## 事件
-editorResult：返回裁切好的图片base64
 | 事件名称 | 描述 |
 | ------ | ------ |
 | editorResult | 返回裁切好的图片base64（需要对返回数据做判断，为空则是点击了取消） |
+
 
 ``` js
 editorResult(data){
