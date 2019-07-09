@@ -4,7 +4,7 @@
 > 基于Vue2.x的头像编辑插件
 
 ## 安装
-因为此插件需要EXIF模块，所以需要先安装EXIF-JS
+因为此插件依赖EXIF模块，所以需要先安装EXIF-JS
 ``` bash
 $ npm install exif-js -S
 ```
@@ -16,8 +16,8 @@ $ npm install lb-image-editor -S
 在 `main.js` 文件中引入插件并注册
 
 ``` bash
-# main.js
 import imageEditor from 'lb-image-editor'
+
 Vue.use(imageEditor);
 ```
 
@@ -26,13 +26,20 @@ Vue.use(imageEditor);
 ```js
 <template>
   <!--头像上传input-->
-  <input type="file" id="headFile" @change="editorImage" accept="image/*" ref="file"/>
+  <input
+      type="file"
+      id="headFile"
+      @change="editorImage"
+      accept="image/*"
+      ref="file"/>
 
-  <!--头像编辑器 开始-->
-  <imageEditor v-if="headImage" :imageFile="headImage" v-on:editorResult="editorResult($event)">
-  </imageEditor>
-  <!--头像编辑器 结束-->
+  <!--头像编辑器-->
+  <imageEditor
+      v-if="headImage"
+      :imageFile="headImage"
+      v-on:editorResult="editorResult($event)"/>
 </template>
+
 <script>
   export default {
     data () {
@@ -43,18 +50,16 @@ Vue.use(imageEditor);
       }
     },
     methods:{
-      /**
-       * 上传头像
-       * */
+      /**上传头像**/
       editorImage() {
         let files = this.$refs.file.files[0];
-        if(!files) return;//在结束的时候清除file的value
-        /*控制图片上传大小不超过1MB*/
+        !files && return;//在结束的时候清除file的value
+
+        //控制图片上传大小不超过1MB
         if (files.size > 8388608) {
           this.$store.commit('SET_TOAST', {show: true, txt: '图片不能超过1MB大小'});
           return false;
         }
-
         this.headImage = files;
       },
 
@@ -67,9 +72,9 @@ Vue.use(imageEditor);
       editorResult(data){
         this.headImage = '';
         this.$refs.file.value = '';
-        if(!data) return;//点击了取消
+        !data && return;//点击了取消
 
-        //执行上传.....
+        //上传.....
         this.cropImgSrc = data;
       },
     }
@@ -99,9 +104,9 @@ Vue.use(imageEditor);
 editorResult(data){
         this.headImage = '';
         this.$refs.file.value = '';
-        if(!data) return;//点击了取消
+        !data && return;//点击了取消
 
-        //执行上传.....
+        //上传.....
         this.cropImgSrc = data;
       }
 ```
