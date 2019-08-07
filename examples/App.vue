@@ -11,10 +11,13 @@
              for="headFile"></label>
 
       <!--头像编辑器 开始-->
-      <imageEditor v-if="headImage"
-                   :imageFile="headImage"
-                   v-on:editorResult="editorResult($event)" />
+      <imageEditor
+              v-if="headImage"
+              :imageFile="headImage"
+               :fileType="fileType"
+               @editorResult="editorResult($event)" />
       <!--头像编辑器 结束-->
+
   </div>
 </template>
 
@@ -25,6 +28,7 @@ export default {
       orientation: null,//图片元信息
       headImage: null,
       cropImgSrc:"",//裁剪好的图片
+      fileType:"blob",//裁切好后的图片以什么格式导出,默认base64（base64 || blob）
     }
   },
   methods:{
@@ -46,16 +50,29 @@ export default {
     /**
      * +++++++++++++++++++++++++++++++++++++
      * 编辑结束的回调
-     * @param data 编辑后的base64值，如果为空则表示点击了取消
+     * @param file 编辑后的base64值，如果为空则表示点击了取消
      * +++++++++++++++++++++++++++++++++++++
      * */
-    editorResult(data){
+    editorResult(file){
       this.headImage = '';
       this.$refs.file.value = '';
-      if(!data) return;//点击了取消
+      if(!file) return;//点击了取消
 
+
+      this.cropImgSrc = URL.createObjectURL(file);//显示裁切图片
       //执行上传.....
-      this.cropImgSrc = data;
+      let formData = new FormData();
+      formData.append('files',file,'image.jpg');
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'http://192.168.1.132:8080/file/upload');
+      xhr.onload = function(){
+        if(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304) {
+          console.log(xhr.responseText);
+        }
+      };
+      xhr.send(formData);
+
     },
   }
 }
