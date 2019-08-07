@@ -1,5 +1,5 @@
 # lb-image-editor
-[![Npm lb-image-editor](https://img.shields.io/badge/Npm-1.0.1-red.svg)](https://www.npmjs.com/package/lb-image-editor) [![Github lb-image-editor](https://img.shields.io/badge/Github-1.0.1-green.svg)](https://www.npmjs.com/package/lb-image-editor)
+[![Npm lb-image-editor](https://img.shields.io/badge/Npm-1.0.3-red.svg)](https://www.npmjs.com/package/lb-image-editor) [![Github lb-image-editor](https://img.shields.io/badge/Github-1.0.3-green.svg)](https://www.npmjs.com/package/lb-image-editor)
 
 > 基于Vue2.x的头像编辑插件
 

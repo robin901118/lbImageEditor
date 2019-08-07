@@ -1,6 +1,6 @@
 {
   "name": "lb-image-editor",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "适合在vue2.x中使用的移动端图片编辑器",
   "main": "lib/lbImageEditor.umd.min.js",
   "keyword": "lb-image-editor",
@@ -9,7 +9,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "lib": "vue-cli-service build --target lib --name lb-image-editor --dest lib packages/index.js"
+    "lib": "vue-cli-service build --target lib --name lbImageEditor --dest lib packages/index.js"
   },
   "dependencies": {
     "exif-js": "^2.3.0",
