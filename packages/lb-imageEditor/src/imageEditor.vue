@@ -1,60 +1,81 @@
 <template lang="html">
-    <div class="LBIMGEDITOR-screenBox">
-        <div class="LBIMGEDITOR-editorBox">
-            <!--主编辑器canvas-->
-            <canvas id="LBIMGEDITOR_canvas" :width="windowWidth" :height="windowHeight"></canvas>
-            <!--蒙层canvas-->
-            <canvas id="LBIMGEDITOR_canvasMask" :width="windowWidth" :height="windowHeight"></canvas>
-        </div>
-        <!--底部按钮-->
-        <div class="LBIMGEDITOR-bottomBar">
-            <button type="button" @click="cancelEditor">取消</button>
-            <button type="button" @click="confirmImage">完成</button>
-        </div>
-        <!--loading-->
-        <div class="LBIMGEDITOR-myMask" v-if="editorLoadingShow">
-            <div class="spring-spinner">
-                <div class="spring-spinner-part top">
-                    <div class="spring-spinner-rotator"></div>
-                </div>
-                <div class="spring-spinner-part bottom">
-                    <div class="spring-spinner-rotator"></div>
+    <section>
+        <!--头像容器-->
+
+        <label
+                :class="['LBIMGED__HEADIMG',...customClass]"
+                ref="label">
+            <input
+                    type="file"
+                    @change="editorImage"
+                    accept="image/*"
+                    ref="file"/>
+        </label>
+
+        <!--编辑器主体-->
+        <div class="LBIMGEDITOR-screenBox" v-show="imageFile">
+            <div class="LBIMGEDITOR-editorBox">
+                <!--主编辑器canvas-->
+                <canvas id="LBIMGEDITOR_canvas" :width="windowWidth" :height="windowHeight"></canvas>
+                <!--蒙层canvas-->
+                <canvas id="LBIMGEDITOR_canvasMask" :width="windowWidth" :height="windowHeight"></canvas>
+            </div>
+            <!--底部按钮-->
+            <div class="LBIMGEDITOR-bottomBar">
+                <button type="button" @click="cancelEditor">取消</button>
+                <button type="button" @click="confirmImage">完成</button>
+            </div>
+            <!--loading-->
+            <div class="LBIMGEDITOR-myMask" v-if="editorLoadingShow">
+                <div class="spring-spinner">
+                    <div class="spring-spinner-part top">
+                        <div class="spring-spinner-rotator"></div>
+                    </div>
+                    <div class="spring-spinner-part bottom">
+                        <div class="spring-spinner-rotator"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 </template>
 
 <script>
   require('./hammer.min');//引入hammerJS
   import EXIF from 'exif-js';
 
+
   export default {
     name: "imageEditor",
     props: {
-      /*传入的图片fail*/
-      imageFile: {
-        type:null,
-        default: null
+      //上传地址（必填）
+      uploadUrl: {
+        type: String,
+        required: true
       },
-      /*传入的裁切宽度*/
+      //传入的裁切宽度
       cropWidth: {
         type: Number,
         default: 260
       },
-      /*传入的裁切高度*/
+      //传入的裁切高度
       cropHeight: {
         type: Number,
         default: 260
       },
-      /*裁切后的图片格式*/
-      fileType:{
+      //上传方式
+      method: {
+        type: String,
+        default: "POST"
+      },
+      //头像组件自定义样式
+      customClass:{
         type:String,
-        default:"base64"
       }
     },
     data() {
       return {
+        imageFile: undefined,//传入的图片
         editorLoadingShow: true,//显示loading
         imageBase64: '',//图片的base64值
         degree: 0,//原图片旋转角度
@@ -77,23 +98,81 @@
     },
     methods: {
       /**
+       * +++++++++++++++++++++++++++++++++++++
+       * 上传头像
+       * +++++++++++++++++++++++++++++++++++++
+       * */
+      editorImage() {
+        const files = this.$refs.file.files[0];
+        if (!files) return;//在结束的时候清除file的value
+        /*控制图片上传大小不超过1MB*/
+        if (files.size > 8388608) {
+          alert("图片不能超过1MB大小");
+          return false;
+        }
+        this.imageFile = files;
+
+        //因为安卓手机调用摄像头拍照会有一个旋转屏幕的效果，
+        //为了保证编辑界面不出现bug，建议加个loading延迟一下
+        setTimeout(() => {
+          this.beforeEditor();
+          this.editorLoadingShow = false;
+        }, 2000);
+      },
+
+      /**
+       * +++++++++++++++++++++++++++++++++++++
+       * 裁切完成进行上传
+       * @param file blob对象
+       * +++++++++++++++++++++++++++++++++++++
+       * */
+      editorResult(file) {
+        const self = this;
+        //显示裁切图片
+        this.$refs.label.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
+
+        //执行上传.....
+        let formData = new FormData();
+        formData.append('files', file, 'image.jpg');
+        const xhr = new XMLHttpRequest();
+        xhr.open(this.method, this.uploadUrl);
+        xhr.onload = function () {
+          if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304) {
+            alert("上传成功");
+            self.resetEditor();
+          }
+        };
+        xhr.send(formData);
+      },
+
+      /**
+       * +++++++++++++++++++++++++++++++++++++
+       * 初始化图片编辑器（初始化data）
+       * +++++++++++++++++++++++++++++++++++++
+       * **/
+      resetEditor() {
+        Object.assign(this.$data, this.$options.data());
+      },
+
+      /**
+       * +++++++++++++++++++++++++++++++++++++
        * 编辑之前做一些操作
+       * +++++++++++++++++++++++++++++++++++++
        * */
       beforeEditor() {
-        let files = this.imageFile,
-          self = this;
+        const self = this;
 
         /*用EXIF获取图片元信息*/
-        EXIF.getData(files, function () {
+        EXIF.getData(this.imageFile, function () {
           self.orientation = EXIF.getTag(this, 'Orientation');
         });
 
-        let fr = new FileReader();
+        const fr = new FileReader();
 
         // 监听reader对象的的onload事件，当图片加载完成时，把base64编码賦值给预览图片
         fr.addEventListener("load", () => {
           if (this.orientation) {
-            /*需要对ios做一下兼容*/
+            /*ios做一下兼容*/
             this.getImgData(fr.result, this.orientation, data => {
               this.imageBase64 = data;
               this.createCanvas();//初始化canvas
@@ -103,7 +182,7 @@
             this.createCanvas();//初始化canvas
           }
         }, false);
-        fr.readAsDataURL(files);
+        fr.readAsDataURL(this.imageFile);
       },
 
       /**
@@ -179,7 +258,7 @@
         let hammer = new Hammer(document.querySelector('#LBIMGEDITOR_canvasMask'));
         hammer.get('pinch').set({enable: true});
 
-        /*缩放 */
+        //缩放
         hammer.on('pinchmove pinchstart pinchin pinchout', e => {
           if (e.type === "pinchstart") {
             this.initScale = this.transformScale || 1;
@@ -191,7 +270,7 @@
           this.canvas.drawImage(this.imgEl, this.translateX - this.transWidth / 2, this.translateY - this.transHeight / 2, this.transWidth, this.transHeight);
         });
 
-        /*平移*/
+        //平移
         hammer.on('panstart panmove', e => {
           if (e.type === 'panstart') {
             this.prevX = this.translateX;
@@ -284,7 +363,8 @@
        * +++++++++++++++++++++++++++++++++++++
        * */
       cancelEditor() {
-        this.$emit('editorResult', '');
+        this.$refs.file.value = '';
+        this.resetEditor();
       },
 
       /**
@@ -297,12 +377,13 @@
         let nImg = new Image();
         nImg.src = base64;
         nImg.onload = () => {
-          /*创建一个reasultCanvas*/
+          //创建一个reasultCanvas
           let canvas = document.createElement('canvas');
           canvas.width = this.cropWidth;
           canvas.height = this.cropHeight;
           let context = canvas.getContext('2d');
-          /*对resultCanva做背景填充并放入图片*/
+
+          //对resultCanva做背景填充并放入图片
           context.fillStyle = 'white';
           context.fillRect(0, 0, this.cropWidth, this.cropHeight);
           context.drawImage(
@@ -310,37 +391,26 @@
             -(this.windowWidth / 2 - this.cropWidth / 2),
             -(this.windowHeight / 2 - this.cropHeight / 2));
 
-          /*导出裁切好的图片*/
-          if(this.fileType === "blob"){
-            canvas.toBlob(blob=>this.$emit('editorResult',blob),"image/jpeg",1);//blob对象
-          }else{
-            this.$emit('editorResult', canvas.toDataURL("image/jpeg"));//base64
-          }
+          //导出裁切好的图片(blob对象)
+          canvas.toBlob(blob => this.editorResult(blob), "image/jpeg", 1);
         }
       }
     },
     mounted() {
-      //因为安卓手机调用摄像头拍照会有一个旋转屏幕的效果，
-      //为了保证编辑界面不出现bug，建议加个loading延迟一下
-      setTimeout(() => {
-        this.beforeEditor();
-        this.editorLoadingShow = false;
-      }, 2000);
-
       //canvas.toBlob api polyfill
-      if (!HTMLCanvasElement.prototype.toBlob && this.fileType === "blob") {
+      if (!HTMLCanvasElement.prototype.toBlob) {
         Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
           value: function (callback, type, quality) {
 
-            let binStr = atob( this.toDataURL(type, quality).split(',')[1] ),
+            let binStr = atob(this.toDataURL(type, quality).split(',')[1]),
               len = binStr.length,
               arr = new Uint8Array(len);
 
-            for (let i=0; i<len; i++ ) {
+            for (let i = 0; i < len; i++) {
               arr[i] = binStr.charCodeAt(i);
             }
 
-            callback( new Blob( [arr], {type: type || 'image/png'} ) );
+            callback(new Blob([arr], {type: type || 'image/png'}));
           }
         });
       }

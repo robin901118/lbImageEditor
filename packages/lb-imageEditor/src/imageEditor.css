@@ -1,3 +1,15 @@
+input[type="file"]{display: none;}
+.LBIMGED__HEADIMG{
+  height: 70px;
+  width: 70px;
+  display: block;
+  border-radius: 50%;
+  background-color: gray;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
 .LBIMGEDITOR-screenBox {
   background: #383434;
   position: fixed;
