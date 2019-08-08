@@ -1,6 +1,6 @@
 {
   "name": "lb-image-editor",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "适合在vue2.x中使用的移动端图片编辑器",
   "main": "lib/lbImageEditor.umd.min.js",
   "keyword": "lb-image-editor",
