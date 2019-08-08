@@ -1,5 +1,5 @@
 # lb-image-editor
-[![Npm lb-image-editor](https://img.shields.io/badge/Npm-1.0.3-red.svg)](https://www.npmjs.com/package/lb-image-editor) [![Github lb-image-editor](https://img.shields.io/badge/Github-1.0.3-green.svg)](https://www.npmjs.com/package/lb-image-editor)
+[![Npm lb-image-editor](https://img.shields.io/badge/Npm-1.0.4-red.svg)](https://www.npmjs.com/package/lb-image-editor) [![Github lb-image-editor](https://img.shields.io/badge/Github-1.0.4-green.svg)](https://www.npmjs.com/package/lb-image-editor)
 
 > 基于Vue2.x的头像编辑插件
 
@@ -21,13 +21,15 @@ Vue.use(imageEditor);
 
 ```js
 <template>
+      <!--头像编辑器 开始-->
       <imageEditor
-              fileType="blob"
               uploadUrl="http://192.168.1.132:8080/file/upload"
+              initHeadImg="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1565255719850&di=be94002735e1c81bd6d4757a9cf04322&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201811%2F04%2F20181104074412_wcelx.jpg"
               method="POST"
               :cropWidth="300"
               :cropHeight="200"
               :customClass="myClass"/>
+      <!--头像编辑器 结束-->
 </template>
 
 <script>
@@ -60,6 +62,7 @@ Vue.use(imageEditor);
 | ------ | ------ | ------ | ------ |
 | uploadUrl | 上传图片的服务器地址 | String | " " |
 | method | 上传方式 | String | POST |
+| initHeadImg | 初始头像 | String | 空白头像占位图 |
 | cropWidth | 裁切图片宽度（不可大于屏幕宽度） | Number | 260 |
 | cropHeight | 裁切图片高度（不可大于屏幕高度） | Number | 260 |
 | customClass | 如果需要修改原始头像组件的样式，可用该参数追加class样式 | String | null |

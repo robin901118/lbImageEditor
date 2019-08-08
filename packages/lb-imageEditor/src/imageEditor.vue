@@ -4,6 +4,7 @@
 
         <label
                 :class="['LBIMGED__HEADIMG',...customClass]"
+                :style="{backgroundImage:labelImg}"
                 ref="label">
             <input
                     type="file"
@@ -43,7 +44,7 @@
 <script>
   require('./hammer.min');//引入hammerJS
   import EXIF from 'exif-js';
-
+  import headImg from './headImg.png';
 
   export default {
     name: "imageEditor",
@@ -71,6 +72,16 @@
       //头像组件自定义样式
       customClass:{
         type:String,
+      },
+      //初始头像
+      initHeadImg:{
+        type:String,
+        default:headImg
+      }
+    },
+    computed:{
+      labelImg(){
+        return `url(${this.initHeadImg})`
       }
     },
     data() {
@@ -128,8 +139,6 @@
        * */
       editorResult(file) {
         const self = this;
-        //显示裁切图片
-        this.$refs.label.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
 
         //执行上传.....
         let formData = new FormData();
@@ -139,8 +148,14 @@
         xhr.onload = function () {
           if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304) {
             alert("上传成功");
+            //显示裁切图片
+            this.$refs.label.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
             self.resetEditor();
           }
+        };
+        xhr.onerror = function(){
+          alert("上传失败！服务器响应异常。");
+          self.resetEditor();
         };
         xhr.send(formData);
       },
